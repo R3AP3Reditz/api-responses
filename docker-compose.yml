@@ -1,0 +1,22 @@
+services:
+  proxy:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      UPSTREAM_BASE_URL: ${UPSTREAM_BASE_URL}
+      UPSTREAM_API_KEY: ${UPSTREAM_API_KEY}
+      UPSTREAM_NAME: ${UPSTREAM_NAME:-primary}
+      UPSTREAM_MODELS: ${UPSTREAM_MODELS:-}
+      UPSTREAM_2_NAME: ${UPSTREAM_2_NAME:-}
+      UPSTREAM_2_BASE_URL: ${UPSTREAM_2_BASE_URL:-}
+      UPSTREAM_2_API_KEY: ${UPSTREAM_2_API_KEY:-}
+      UPSTREAM_2_MODELS: ${UPSTREAM_2_MODELS:-}
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      DATA_DIR: /data
+    volumes:
+      - proxy-data:/data
+    restart: unless-stopped
+
+volumes:
+  proxy-data:
