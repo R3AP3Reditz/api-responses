@@ -91,6 +91,10 @@ func main() {
 	mux.HandleFunc("POST /admin/keys/revoke", s.revokeKey)
 	mux.HandleFunc("POST /admin/upstreams", s.createUpstream)
 	mux.HandleFunc("POST /admin/upstreams/delete", s.deleteUpstream)
+	mux.HandleFunc("GET /v1/models", s.listModels)
+	mux.HandleFunc("GET /v1/models/{id}", s.getModel)
+	mux.HandleFunc("GET /models", s.listModels)
+	mux.HandleFunc("GET /models/{id}", s.getModel)
 	mux.HandleFunc("/", s.forward)
 
 	log.Printf("listening on %s", cfg.listen)
@@ -429,6 +433,14 @@ func (s *server) touchKey(raw string) (string, int, bool, error) {
 		return "", 0, false, err
 	}
 	return id, rpm, true, nil
+}
+
+func (s *server) keyExists(raw string) (bool, error) {
+	sum := sha256.Sum256([]byte(raw))
+	hash := hex.EncodeToString(sum[:])
+	var n int
+	err := s.db.QueryRow(`SELECT COUNT(*) FROM api_keys WHERE key_hash = ? AND revoked = 0`, hash).Scan(&n)
+	return n == 1, err
 }
 
 func (s *server) allow(id string, rpm int) bool {
